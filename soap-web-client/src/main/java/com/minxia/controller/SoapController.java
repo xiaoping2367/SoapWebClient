@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class SoapController {
 	
-	@RequestMapping(value = "/sendForm", method = RequestMethod.GET)
+	@RequestMapping(value = "/sendSoap", method = RequestMethod.POST)
 	public String getResponse(){
+		
+		
 		return null;
 	}
 	
