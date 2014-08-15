@@ -1,6 +1,13 @@
 package com.minxia.model;
 
 public class SoapForm {
+	private String url;
+	private String action;
+	private boolean useSSL;
+	private String properties;
+	private String input;
+	private String output;
+
 	public String getUrl() {
 		return url;
 	}
@@ -38,12 +45,12 @@ public class SoapForm {
 		this.output = output;
 	}
 	
+	@Override
+	public String toString() {
+		return "SoapForm [url=" + url + ", action=" + action + ", useSSL=" + useSSL
+				+ ", properties=" + properties
+				+ ", input=" + input + "]";
+	}
 	
-	private String url;
-	private String action;
-	private boolean useSSL;
-	private String properties;
-	private String input;
-	private String output;
 
 }
