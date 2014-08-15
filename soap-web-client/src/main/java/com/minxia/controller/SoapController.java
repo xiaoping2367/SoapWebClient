@@ -2,7 +2,11 @@ package com.minxia.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.minxia.model.SoapForm;
 
 @Controller
 @RequestMapping(value = "/")
@@ -14,10 +18,10 @@ public class SoapController {
 		return "main";
 	}
 	
-	@RequestMapping(value = "test.mx")
-	public String test(Model m) {
-		m.addAttribute("name", "CodeTutr");
-		System.out.println("this is a test");
-		return "home";
+	@RequestMapping(value = "sendSoap.mx", method = RequestMethod.POST)
+	public String sendSoap(@ModelAttribute("soapform") SoapForm soapform, Model m) {
+		System.out.println(soapform.getUrl());
+		return "main";
 	}
+	
 }
