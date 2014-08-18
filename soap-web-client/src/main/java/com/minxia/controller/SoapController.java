@@ -13,9 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.minxia.model.SoapForm;
+import com.minxia.soap.Executor;
+import com.minxia.soap.SoapExecutor;
 
 @Controller
 public class SoapController {
+	
+	Executor executor;
 	
 	@RequestMapping(value = "home.mx", method = RequestMethod.GET)
 	public String loadHomePage(Model m) {
@@ -28,6 +32,14 @@ public class SoapController {
 	public String sendSoap(HttpServletRequest request,HttpServletResponse response) {
 		SoapForm form = new SoapForm();
 		fillSoapForm(request, form);
+		executor = new SoapExecutor(form);
+		executor.Execute();
+		writeJsonOutput(form, response);
+		return null;
+	}
+
+	private void writeJsonOutput(SoapForm form, HttpServletResponse response) {
+		// TODO Auto-generated method stub
 		PrintWriter out = null;
 		try {
 			out = response.getWriter();
@@ -38,7 +50,6 @@ public class SoapController {
 			out.close();
 		}
 		
-		return null;
 	}
 
 	private void fillSoapForm(HttpServletRequest request, SoapForm form) {
@@ -55,7 +66,7 @@ public class SoapController {
 	{
 		String json = "{";
 		json += "\"isSuc\":" + (isSuc ? "true" : "false");
-		json += ",\"msg\":\"" + form.toString() + "\"}";
+		json += ",\"msg\":\"" + form.getOutput() + "\"}";
 		return json;
 	}
 }
