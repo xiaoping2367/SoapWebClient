@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.minxia.model.SoapForm;
 import com.minxia.soap.Executor;
 import com.minxia.soap.SoapExecutor;
+import com.minxia.utils.XmlEscape;
 
 @Controller
 public class SoapController {
@@ -31,7 +32,9 @@ public class SoapController {
 	@RequestMapping(value = "sendSoap.mx", method = RequestMethod.POST)
 	public String sendSoap(HttpServletRequest request,HttpServletResponse response) {
 		SoapForm form = new SoapForm();
+		
 		fillSoapForm(request, form);
+		System.out.println(form.toString());
 		executor = new SoapExecutor(form);
 		executor.Execute();
 		writeJsonOutput(form, response);
@@ -56,7 +59,10 @@ public class SoapController {
 		// TODO Auto-generated method stub
 		form.setUrl(request.getParameter("url"));
 		form.setAction(request.getParameter("action"));
-		form.setUrl(request.getParameter("useSSL"));
+		if(request.getParameter("useSSL") == null){
+			form.setUseSSL(false);
+		}else
+			form.setUseSSL(true);
 		form.setProperties(request.getParameter("properties"));
 		form.setInput(request.getParameter("input"));
 		form.setOutput(request.getParameter("output"));
@@ -64,9 +70,11 @@ public class SoapController {
 	
 	public final String createJson_str(boolean isSuc, SoapForm form)
 	{
+		System.out.println("esacpe version: " + XmlEscape.escapeXml(form.getOutput()));
+		
 		String json = "{";
 		json += "\"isSuc\":" + (isSuc ? "true" : "false");
-		json += ",\"msg\":\"" + form.getOutput() + "\"}";
+		json += ",\"msg\":\"" + XmlEscape.escapeXml(form.getOutput()) + "\"}";
 		return json;
 	}
 }

@@ -42,19 +42,8 @@ public class SoapExecutor implements Executor {
 			URLConnection connection = url.openConnection();
 	        HttpURLConnection httpConn = (HttpURLConnection) connection;
 
-	        // Open the input file. After we copy it to a byte array, we can see
-	        // how big it is so that we can set the HTTP Cotent-Length
-	        // property. (See complete e-mail below for more on this.)
-	        FileInputStream fin = new FileInputStream(inputFile);
-
-	        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+	        byte[] b = inputFile.getBytes();
 	    
-	        // Copy the SOAP file to the open connection.
-	        copy(fin,bout);
-	        fin.close();
-
-	        byte[] b = bout.toByteArray();
-
 	        // Set the appropriate HTTP parameters.
 	        httpConn.setRequestProperty( "Content-Length",
 	                                     String.valueOf( b.length ) );

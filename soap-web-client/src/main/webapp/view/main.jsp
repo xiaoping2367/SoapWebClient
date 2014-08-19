@@ -11,74 +11,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <base href="<%=basePath%>" />
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Web Soap Client</title>
+<base href="<%=basePath%>" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web Soap Client</title>
 
-    <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
 
-    <style type="text/css">
-    h1{
-        margin: 30px;
-        padding: 0 200px 15px 0;
-        border-bottom: 1px solid #E5E5E5;
-    }
-    .bs-example{
-        margin: 10px 90px 0 20px;
-    }
-    </style>
-    
-    <script type="text/javascript">
-    function togglePropertiesText() {
-    	if(!$('#ssl').is(':checked')) {
-    		$('#properties').hide();
-    		$('#propertiesLabel').hide();
-    	} else {
-    		$('#properties').show();
-    		$('#propertiesLabel').show();
-    	}
-    }
+<style type="text/css">
+h1 {
+	margin: 30px;
+	padding: 0 200px 15px 0;
+	border-bottom: 1px solid #E5E5E5;
+}
 
-    $(document).ready(function() {
-    		togglePropertiesText();
-    	
-    		$('#ssl').change(function() {
-    			togglePropertiesText();
-    		})
-    		
-    		
-    		
+.bs-example {
+	margin: 10px 90px 0 20px;
+}
+</style>
 
-    		$('#send').click(function () {
-    			var url = $('#url').val();
-    			var action = $('#action').val();
-    			var ssl = $('#ssl').val();
-    			var properties = $('#properties').val();
-    			var input = $('#input').val();
-    			
-    			var param = { "url" : url, 
-    						"action" : action, 
-    						"useSSL": ssl,
-    						"properties" : properties,
-    						"input" : input}; 
-    			
-    			$.ajax({url:"sendSoap.mx", type:"POST", data:param, dataType:"json", success:function(data) {
-    				alert('123');
-    				$("#outputLabel").html("Output");  
-    				$("#output").html(data.msg);  
-    			}});
-    			
-    			return false;
-    		});
+<script type="text/javascript">
+	function togglePropertiesText() {
+		if (!$('#ssl').is(':checked')) {
+			$('#properties').hide();
+			$('#propertiesLabel').hide();
+		} else {
+			$('#properties').show();
+			$('#propertiesLabel').show();
+		}
+	}
 
-    	});
+	$(document).ready(function() {
+		togglePropertiesText();
+
+		$('#ssl').change(function() {
+			togglePropertiesText();
+		})
+
+		$('#send').click(function() {
+			var url = $('#url').val();
+			var action = $('#action').val();
+			var ssl = $('#ssl').val();
+			var properties = $('#properties').val();
+			var input = $('#input').val();
+
+			var param = {
+				"url" : url,
+				"action" : action,
+				"useSSL" : ssl,
+				"properties" : properties,
+				"input" : input
+			};
+
+			$.ajax({
+				url : "sendSoap.mx",
+				type : "POST",
+				data : param,
+				dataType : "json",
+				success : function(data) {
+					$("#outputLabel").html("Output");
+					$("#output").html(data.msg);
+				}
+			});
+
+			return false;
+		});
+
+		$('#reset').click(function() {
+			$('#url').val('');
+			$('#action').val('');
+			$('#ssl').val('');
+			$('#properties').val('');
+			$('#input').val();
+			$("#outputLabel").hide();
+			$("#output").hide();
+		});
+
+	});
 </script>
 
 </head>
@@ -91,7 +107,7 @@
             <div class="form-group">
                 <label class="control-label col-xs-3" for="url">URL:</label>
                 <div class="col-xs-9">
-                    <input type="text" name="url" class="form-control" id="urlAddr" placeholder="URL"/>
+                    <input type="text" name="url" class="form-control" id="url" placeholder="URL"/>
                 </div>
             </div>
             <div class="form-group">
@@ -136,7 +152,7 @@ javax.net.ssl.keyStorePassword=C3Ktest"></textarea>
             <div class="form-group">
                 <div class="col-xs-offset-3 col-xs-9">
                     <input id="send" type="submit" class="btn btn-primary" value="Submit">
-                    <input type="reset" class="btn btn-default" value="Reset">
+                    <input id="reset" type="reset" class="btn btn-default" value="Reset">
                 </div>
             </div>
         </form>

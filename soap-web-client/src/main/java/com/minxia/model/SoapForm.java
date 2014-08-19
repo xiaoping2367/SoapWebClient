@@ -4,6 +4,7 @@ public class SoapForm {
 	private String url;
 	private String action;
 	private boolean useSSL;
+
 	private String properties;
 	private String input;
 	private String output;
@@ -26,6 +27,7 @@ public class SoapForm {
 	public void setUseSSL(boolean useSSL) {
 		this.useSSL = useSSL;
 	}
+
 	public String getProperties() {
 		return properties;
 	}
