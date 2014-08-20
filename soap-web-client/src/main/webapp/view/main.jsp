@@ -19,10 +19,9 @@
 
 <!-- Bootstrap -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<link href="css/sticky-footer.css" rel="stylesheet">
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="js/bootstrap.min.js"></script>
 
 <style type="text/css">
@@ -47,6 +46,25 @@ h1 {
 			$('#propertiesLabel').show();
 		}
 	}
+	
+	function label(data) {
+		var param = data.replace(/ /g, "@");
+		$.ajax({
+			url : "fill/" + param + ".mx",
+			dataType : 'json',
+			type : 'get',
+			async : true,
+			success : function(data) {
+				var item = eval(data);
+				$('#name').val(data.name);
+				$('#url').val(data.url);
+				$('#action').val(data.action);
+				$('#input').val(data.input);
+				$("#outputLabel").hide();
+				$("#output").hide();
+			}
+		});
+	}
 
 	$(document).ready(function() {
 		togglePropertiesText();
@@ -61,7 +79,6 @@ h1 {
 			var ssl = $('#ssl').val();
 			var properties = $('#properties').val();
 			var input = $('#input').val();
-
 			var param = {
 				"url" : url,
 				"action" : action,
@@ -76,8 +93,58 @@ h1 {
 				data : param,
 				dataType : "json",
 				success : function(data) {
-					$("#outputLabel").html("Output");
-					$("#output").html(data.msg);
+					if (data.isSuc) {
+						$("#outputLabel").html("Output");
+						$("#output").html(data.msg);
+					} else {
+						$("#outputLabel").html("Output");
+						$("#output").html("Soap Request Error");
+					}
+				},
+				error : function(error) {
+					alert('Error occurs');
+					alert(error);
+				}
+			});
+
+			return false;
+		});
+
+		$('#save').click(function() {
+			var name = $('#name').val();
+			if (!name) {
+				alert('Please give a template name!');
+				return false;
+			}
+			var url = $('#url').val();
+			var action = $('#action').val();
+			var ssl = $('#ssl').val();
+			var properties = $('#properties').val();
+			var input = $('#input').val();
+			var param = {
+				"name" : name,
+				"url" : url,
+				"action" : action,
+				"useSSL" : ssl,
+				"properties" : properties,
+				"input" : input
+			};
+
+			$.ajax({
+				url : "saveTemp.mx",
+				type : "POST",
+				data : param,
+				dataType : "json",
+				success : function(data) {
+					if (data.isSuc) {
+						alert('Saved request tempaltes');
+					} else {
+						alert('Failed to save request tempaltes');
+					}
+				},
+				error : function(error) {
+					alert('Error occurs');
+					alert(error);
 				}
 			});
 
@@ -103,6 +170,12 @@ h1 {
     <div class="bs-example">
 
         <form class="form-horizontal" onsubmit='return sendSoap()'>
+        	<div class="form-group">
+                <label class="control-label col-xs-3" for="url">Template Name:</label>
+                <div class="col-xs-9">
+                    <input type="text" name="name" class="form-control" id="name" placeholder="Template Name"/>
+                </div>
+            </div>
 
             <div class="form-group">
                 <label class="control-label col-xs-3" for="url">URL:</label>
@@ -141,7 +214,22 @@ javax.net.ssl.keyStorePassword=C3Ktest"></textarea>
                 </div>
             </div>
 
-            <div class="form-group">
+			<div class="form-group">
+				<label class="control-label col-xs-3" for="Select Templates" id="selectTemp">Select Saved Templates</label>
+				<div class="dropdown col-xs-9">
+					<button class="btn btn-default dropdown-toggle" type="button"
+						id="dropdownMenu1" data-toggle="dropdown">Soap Templates<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+						<c:forEach items="${tempList}" var="tmplst">
+							<li role="presentation"><a role="menuitem" tabindex="-1" onClick="label('${tmplst.name}')">${tmplst.name}</a></li>
+						</c:forEach>
+					</ul>
+				</div>
+			</div>
+
+
+			<div class="form-group">
                 <label class="control-label col-xs-3" for="output" id="outputLabel"></label>
                 <div class="col-xs-9" id="output">
                     <!-- <textarea rows="6" name="output" class="form-control" id="output" style="display:none;"></textarea> -->
@@ -153,9 +241,19 @@ javax.net.ssl.keyStorePassword=C3Ktest"></textarea>
                 <div class="col-xs-offset-3 col-xs-9">
                     <input id="send" type="submit" class="btn btn-primary" value="Submit">
                     <input id="reset" type="reset" class="btn btn-default" value="Reset">
+                    <input id="save" type="button" class="btn btn-default" value="Save">
                 </div>
             </div>
         </form>
     </div>
+	<div class="footer">
+		<p class="text-muted">
+			This tool is only distributed by <strong>Open Source</strong> purpose.
+		</p>
+		<p class="text-muted">
+			Copyright &copy; 2014 Min Xia &mdash; <a
+				href="http://www.minxia.net/" title="My Site">Min's blog</a>
+		</p>
+	</div>
 </body>
 </html>

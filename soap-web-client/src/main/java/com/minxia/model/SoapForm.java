@@ -1,6 +1,14 @@
 package com.minxia.model;
 
-public class SoapForm {
+import java.io.Serializable;
+
+public class SoapForm implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String name;
 	private String url;
 	private String action;
 	private boolean useSSL;
@@ -49,9 +57,15 @@ public class SoapForm {
 	
 	@Override
 	public String toString() {
-		return "SoapForm [url=" + url + ", action=" + action + ", useSSL=" + useSSL
+		return "SoapForm [name=" + url + ", url=" + url + ", action=" + action + ", useSSL=" + useSSL
 				+ ", properties=" + properties
 				+ ", input=" + input + "]";
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 
