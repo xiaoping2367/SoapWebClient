@@ -64,6 +64,13 @@ public class SoapController {
 		Boolean isSuc = true;
 		SoapForm form = new SoapForm();
 		fillSoapForm(request, form);
+		for(SoapForm f : list){
+			if(form.getName().equalsIgnoreCase(f.getName())){
+				msg = "There is an existing " + form.getName() + "template";
+				writeJsonOutput(false, form, response, msg);
+				return null;
+			}
+		}
 		list.add(form);
 		try {
 			SoapTemplateManager.writeFile(list);

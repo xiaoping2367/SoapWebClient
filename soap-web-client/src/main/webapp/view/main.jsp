@@ -87,13 +87,16 @@ h1 {
 				"input" : input
 			};
 
+			/* alert(JSON.stringify(param));  */
 			$.ajax({
-				url : "sendSoap.mx",
-				type : "POST",
+				url : 'sendSoap.mx',
+				type : 'POST',
 				data : param,
-				dataType : "json",
+				dataType : 'json',
 				success : function(data) {
 					if (data.isSuc) {
+						$("#outputLabel").show();
+						$("#output").show();
 						$("#outputLabel").html("Output");
 						$("#output").html(data.msg);
 					} else {
@@ -103,7 +106,10 @@ h1 {
 				},
 				error : function(error) {
 					alert('Error occurs');
-					alert(error);
+					$("#outputLabel").show();
+					$("#output").show();
+					$("#outputLabel").html("Output");
+					$("#output").html("Soap Request Error");
 				}
 			});
 
@@ -139,12 +145,15 @@ h1 {
 					if (data.isSuc) {
 						alert('Saved request tempaltes');
 					} else {
-						alert('Failed to save request tempaltes');
+						if(data.msg){
+							alert(data.msg);				
+						}else{
+							alert('Failed to save request tempaltes');
+						}
 					}
 				},
 				error : function(error) {
 					alert('Error occurs');
-					alert(error);
 				}
 			});
 
@@ -154,7 +163,7 @@ h1 {
 		$('#reset').click(function() {
 			$('#url').val('');
 			$('#action').val('');
-			$('#ssl').val('');
+			$('#ssl').val('ssl');
 			$('#properties').val('');
 			$('#input').val();
 			$("#outputLabel").hide();
