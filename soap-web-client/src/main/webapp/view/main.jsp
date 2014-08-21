@@ -55,13 +55,14 @@ h1 {
 			type : 'get',
 			async : true,
 			success : function(data) {
-				var item = eval(data);
-				$('#name').val(data.name);
-				$('#url').val(data.url);
-				$('#action').val(data.action);
-				$('#input').val(data.input);
+				if (data.isSuc) {
+				$('#name').val(data.msg.name);
+				$('#url').val(data.msg.url);
+				$('#action').val(data.msg.action);
+				$('#input').val(data.msg.input);
 				$("#outputLabel").hide();
 				$("#output").hide();
+				}
 			}
 		});
 	}

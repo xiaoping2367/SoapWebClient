@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.minxia.model.SoapForm;
 import com.minxia.soap.Executor;
 import com.minxia.soap.SoapExecutor;
+import com.minxia.utils.JsonWriter;
 import com.minxia.utils.SoapTemplateManager;
 import com.minxia.utils.XmlEscape;
 
@@ -32,6 +33,7 @@ public class SoapController {
 	Executor executor;
 	Collection<SoapForm> list = new CopyOnWriteArrayList<SoapForm>();
 	ObjectMapper mapper = new ObjectMapper();
+	JsonWriter jw = new JsonWriter();
 	
 	@RequestMapping(value = "home.mx", method = RequestMethod.GET)
 	public String loadHomePage(Model m) {
@@ -50,11 +52,13 @@ public class SoapController {
 	
 	@RequestMapping(value = "sendSoap.mx", method = RequestMethod.POST)
 	public String sendSoap(HttpServletRequest request,HttpServletResponse response) {
+		String msg;
 		SoapForm form = new SoapForm();
 		fillSoapForm(request, form);
 		executor = new SoapExecutor(form);
 		executor.Execute();
-		writeJsonOutput(true, form, response, null);
+		msg = form.getOutput();
+		jw.writeJsonOutput(true, response, msg);
 		return null;
 	}
 	
@@ -62,16 +66,19 @@ public class SoapController {
 	public String saveTemp(HttpServletRequest request,HttpServletResponse response) {
 		String msg = null;
 		Boolean isSuc = true;
+		Boolean isExist = false;
 		SoapForm form = new SoapForm();
+		
 		fillSoapForm(request, form);
-		for(SoapForm f : list){
-			if(form.getName().equalsIgnoreCase(f.getName())){
-				msg = "There is an existing " + form.getName() + "template";
-				writeJsonOutput(false, form, response, msg);
-				return null;
+		for(int ii=0;ii<list.size();ii++){
+			if(form.getName().equalsIgnoreCase(((CopyOnWriteArrayList<SoapForm>)list).get(ii).getName())){
+				isExist = true;
+				((CopyOnWriteArrayList<SoapForm>)list).set(ii, form);
 			}
 		}
-		list.add(form);
+		if(!isExist){
+			list.add(form);
+		}
 		try {
 			SoapTemplateManager.writeFile(list);
 		} catch (Exception e) {
@@ -79,8 +86,10 @@ public class SoapController {
 			isSuc = false;
 			e.printStackTrace();
 		}
-		form.setOutput("save template file successfully");
-		writeJsonOutput(isSuc, form, response, msg);
+		if(isSuc){
+			msg = "save template file successfully";
+		}
+		jw.writeJsonOutput(isSuc, response, msg);
 		return null;
 	}
 
@@ -100,7 +109,7 @@ public class SoapController {
 		if(found){
 			try {
 				String output = mapper.writeValueAsString(form);
-				writeJsonOutput(output, response);
+				jw.writeJsonOutput(true, response, output);
 			} catch (IOException e) {
 				msg = "error";
 				found = false;
@@ -108,36 +117,6 @@ public class SoapController {
 			}
 		}
 		return null;
-	}
-	
-	private void writeJsonOutput(Boolean isSuc, SoapForm form, HttpServletResponse response, String msg) {
-		// TODO Auto-generated method stub
-		PrintWriter out = null;
-		try {
-			out = response.getWriter();
-			out.println(createJson_str(isSuc,form, msg));
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			out.close();
-		}
-		
-	}
-	
-	private void writeJsonOutput(String output, HttpServletResponse response) {
-		// TODO Auto-generated method stub
-		PrintWriter out = null;
-		try {
-			out = response.getWriter();
-			out.println(output);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			out.close();
-		}
-		
 	}
 
 	private void fillSoapForm(HttpServletRequest request, SoapForm form) {
@@ -154,17 +133,5 @@ public class SoapController {
 		form.setOutput(request.getParameter("output"));
 	}
 	
-	public final String createJson_str(boolean isSuc, SoapForm form, String msg)
-	{
-		String output;
-		if(isSuc){
-			output = form.getOutput();
-		}else{
-			output = msg;
-		}
-		String json = "{";
-		json += "\"isSuc\":" + (isSuc ? "true" : "false");
-		json += ",\"msg\":\"" + XmlEscape.escapeXml(output) + "\"}";
-		return json;
-	}
+	
 }
