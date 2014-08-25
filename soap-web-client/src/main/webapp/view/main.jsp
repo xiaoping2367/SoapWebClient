@@ -55,6 +55,7 @@ h1 {
 			type : 'get',
 			async : true,
 			success : function(data) {
+				alert(data.msg.name);
 				if (data.isSuc) {
 				$('#name').val(data.msg.name);
 				$('#url').val(data.msg.url);
