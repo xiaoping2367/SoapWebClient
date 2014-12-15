@@ -27,25 +27,29 @@ public class SoapTemplateManager {
 	 */
 	
 	 public static synchronized void writeFile(Collection<SoapForm> list) throws Exception {
+		 ObjectOutputStream out = null;
 	        try {
-	            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+	            out = new ObjectOutputStream(new FileOutputStream(file));
 	            out.writeObject(list);
-	            out.close();
 	        } catch (Exception e) {  
 	        	throw e;
-	        } 
+	        } finally{
+	        	out.close();
+	        }
 	    }
 	     
 	    @SuppressWarnings("unchecked")
 	    public static Collection<SoapForm> readFile() throws Exception {
 	    	Collection<SoapForm> list = null;
+	    	ObjectInputStream in = null;
 	        try {
-	            ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+	            in = new ObjectInputStream(new FileInputStream(file));
 	            list = (Collection<SoapForm>)in.readObject();
-	            in.close();            
 	        } catch (Exception e) {
 	        	throw e;
-	        } 
+	        } finally{
+	        	in.close();
+	        }
 	        return list;
 	    }
 	    

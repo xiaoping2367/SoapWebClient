@@ -1,18 +1,12 @@
 package com.minxia.controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +19,6 @@ import com.minxia.soap.Executor;
 import com.minxia.soap.SoapExecutor;
 import com.minxia.utils.JsonWriter;
 import com.minxia.utils.SoapTemplateManager;
-import com.minxia.utils.XmlEscape;
 
 @Controller
 public class SoapController {
@@ -56,9 +49,11 @@ public class SoapController {
 		SoapForm form = new SoapForm();
 		fillSoapForm(request, form);
 		executor = new SoapExecutor(form);
+		long start = System.currentTimeMillis();
 		executor.Execute();
+		long cost = System.currentTimeMillis() - start;
 		msg = form.getOutput();
-		jw.writeJsonOutput(true, response, msg);
+		jw.writeJsonOutput(true, response, msg, cost);
 		return null;
 	}
 	
@@ -89,7 +84,7 @@ public class SoapController {
 		if(isSuc){
 			msg = "save template file successfully";
 		}
-		jw.writeJsonOutput(isSuc, response, msg);
+		jw.writeJsonOutput(isSuc, response, msg, -1);
 		return null;
 	}
 
@@ -109,7 +104,7 @@ public class SoapController {
 		if(found){
 			try {
 				String output = mapper.writeValueAsString(form);
-				jw.writeJsonOutput(true, response, output);
+				jw.writeJsonOutput(true, response, output, -1);
 			} catch (IOException e) {
 				msg = "error";
 				found = false;
@@ -124,11 +119,11 @@ public class SoapController {
 		form.setName(request.getParameter("name"));
 		form.setUrl(request.getParameter("url"));
 		form.setAction(request.getParameter("action"));
-		if(request.getParameter("useSSL") == null){
-			form.setUseSSL(false);
-		}else
+		if(request.getParameter("useSSL").equalsIgnoreCase("true")){
 			form.setUseSSL(true);
-		form.setProperties(request.getParameter("properties"));
+			form.setProperties(request.getParameter("properties"));
+		}else
+			form.setUseSSL(false);
 		form.setInput(request.getParameter("input"));
 		form.setOutput(request.getParameter("output"));
 	}

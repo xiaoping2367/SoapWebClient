@@ -7,18 +7,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Enumeration;
+import java.util.Properties;
 
 import javax.net.ssl.SSLHandshakeException;
+
 
 import com.minxia.model.SoapForm;
 
 public class SoapExecutor implements Executor {
 	
 	private SoapForm form;
+	private Properties prop = null;
 	
 	public SoapExecutor(SoapForm form)
 	{
@@ -27,6 +32,10 @@ public class SoapExecutor implements Executor {
 
 	@Override
 	public void Execute() {
+		OutputStream out = null;
+		BufferedReader in = null;
+		HttpURLConnection httpConn= null;
+		
 		try {
 			String soapURL = form.getUrl();
 			String soapAction = form.getAction();
@@ -38,9 +47,15 @@ public class SoapExecutor implements Executor {
 			System.out.println("# inputFile = "+inputFile);
 			System.out.println("# outputFile = "+outputFile);
 			
+			if(form.isUseSSL()){
+				String properties  = form.getProperties();
+				prop = parsePropertiesString(properties);
+				initSystemProperties();
+			}
+			
 			URL url = new URL(soapURL);
 			URLConnection connection = url.openConnection();
-	        HttpURLConnection httpConn = (HttpURLConnection) connection;
+	        httpConn = (HttpURLConnection) connection;
 
 	        byte[] b = inputFile.getBytes();
 	    
@@ -59,7 +74,7 @@ public class SoapExecutor implements Executor {
 	        System.out.println(new String(b));
 	        System.out.println("");
 	        // Everything's set up; send the XML that was read in to b.
-	        OutputStream out = httpConn.getOutputStream();
+	        out = httpConn.getOutputStream();
 	        out.write( b );    
 	        out.close();
 
@@ -72,7 +87,7 @@ public class SoapExecutor implements Executor {
 	        	isr = new InputStreamReader(httpConn.getErrorStream());
 	        }
 	        
-	        BufferedReader in = new BufferedReader(isr);
+	        in = new BufferedReader(isr);
 
 	        String inputLine;
 	        String outputString = "";
@@ -95,6 +110,26 @@ public class SoapExecutor implements Executor {
 			// TODO Auto-generated catch block
 			 System.out.println("test IO");
 			e.printStackTrace();
+		}
+		finally{
+			if(out!=null){
+				try {
+					out.close();
+				} catch (Exception e1) {
+				}
+			}
+			if(in!=null){
+				try {
+					in.close();
+				} catch (Exception e1) {
+				}
+			}
+			if(httpConn!=null){
+				try {
+					httpConn.disconnect();
+				} catch (Exception e) {
+				}
+			}			
 		}
 	}
 	
@@ -122,6 +157,33 @@ public class SoapExecutor implements Executor {
 
 	public void setForm(SoapForm form) {
 		this.form = form;
+	}
+	
+	public Properties parsePropertiesString(String s) {
+	    // grr at load() returning void rather than the Properties object
+	    // so this takes 3 lines instead of "return new Properties().load(...);"
+	    final Properties p = new Properties();
+	    try {
+			p.load(new StringReader(s));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	    return p;
+	}
+	
+	public void initSystemProperties() {
+		for(Enumeration e=prop.propertyNames(); e.hasMoreElements();){  
+			String key=(String) e.nextElement();  
+			String value = prop.getProperty(key); 
+			System.setProperty(key, value);
+		}
+
+		System.out.println("# Set system properties:");
+		for(Enumeration e=System.getProperties().propertyNames(); e.hasMoreElements();){  
+			String key=(String) e.nextElement();  
+			String value = prop.getProperty(key); 
+			System.out.println("key: "+ key + "      value: " + value);
+		}
 	}
 
 }

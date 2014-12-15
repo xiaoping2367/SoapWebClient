@@ -34,6 +34,7 @@ h1 {
 .bs-example {
 	margin: 10px 90px 0 20px;
 }
+
 </style>
 
 <script type="text/javascript">
@@ -55,12 +56,13 @@ h1 {
 			type : 'get',
 			async : true,
 			success : function(data) {
-				alert(data.msg.name);
 				if (data.isSuc) {
 				$('#name').val(data.msg.name);
 				$('#url').val(data.msg.url);
 				$('#action').val(data.msg.action);
 				$('#input').val(data.msg.input);
+				$("#costLabel").hide();
+				$("#cost").hide();
 				$("#outputLabel").hide();
 				$("#output").hide();
 				}
@@ -78,9 +80,16 @@ h1 {
 		$('#send').click(function() {
 			var url = $('#url').val();
 			var action = $('#action').val();
-			var ssl = $('#ssl').val();
-			var properties = $('#properties').val();
 			var input = $('#input').val();
+			
+			if ($('#ssl').is(':checked')){
+				var ssl = true;
+				var properties = $('#properties').val();
+			}else{
+				var ssl = false;
+				var properties = "";
+			}
+			
 			var param = {
 				"url" : url,
 				"action" : action,
@@ -93,14 +102,25 @@ h1 {
 			$.ajax({
 				url : 'sendSoap.mx',
 				type : 'POST',
+				timeout: 120000,
 				data : param,
 				dataType : 'json',
+				beforeSend:function() { 
+					$("<div class=\"datagrid-mask-msg\"><img src='images/waiting.gif' style='position:absolute; width:80px; height:60px;' id='img_loding'/></div>").appendTo("body").css({position:'absolute', left:'50%', top:'50%'});
+					}, 
+				complete:function(data) { 
+					$('.datagrid-mask-msg').remove(); 
+					}, 
 				success : function(data) {
 					if (data.isSuc) {
 						$("#outputLabel").show();
 						$("#output").show();
+						$("#costLabel").show();
+						$("#cost").show();
 						$("#outputLabel").html("Output");
 						$("#output").html(data.msg);
+						$("#costLabel").html("Cost");
+						$("#cost").html(data.cost +" ms");
 					} else {
 						$("#outputLabel").html("Output");
 						$("#output").html("Soap Request Error");
@@ -170,6 +190,8 @@ h1 {
 			$('#input').val();
 			$("#outputLabel").hide();
 			$("#output").hide();
+			$("#costLabel").hide();
+			$("#cost").hide();
 		});
 
 	});
@@ -177,6 +199,7 @@ h1 {
 
 </head>
 <body>
+	<jsp:include page="nav.jsp?index=soap"></jsp:include>
     <h1>Soap Test Client</h1>
     <div class="bs-example">
 
@@ -212,9 +235,17 @@ h1 {
             <div class="form-group">
                 <label class="control-label col-xs-3" for="properties" id="propertiesLabel">System Properties</label>
                 <div class="col-xs-9">
-                    <textarea rows="3" name="properties" class="form-control" id="properties" placeholder="java.protocol.handler.pkgs=com.ibm.net.ssl.www2.protocol 
-javax.net.ssl.keyStore=c:/csi_keystore.jks
-javax.net.ssl.keyStorePassword=C3Ktest"></textarea>
+                    <textarea rows="3" name="properties" class="form-control" id="properties" placeholder="javax.net.ssl.keyStore=/appl/ntelagent/6080/bis/NTELfqS.jks  	 
+javax.net.ssl.keyStorePassword=fusQs1  	 
+javax.net.ssl.keyStoreType=JKS  	 
+javax.net.ssl.trustStore=/appl/ntelagent/6080/bis/NTELfqS.jks  	 
+javax.net.ssl.trustStorePassword=fusQs1  	 
+javax.net.ssl.trustStoreType=JKS">javax.net.ssl.keyStore=/appl/ntelagent/6080/bis/NTELfqS.jks  	 
+javax.net.ssl.keyStorePassword=fusQs1  	 
+javax.net.ssl.keyStoreType=JKS  	 
+javax.net.ssl.trustStore=/appl/ntelagent/6080/bis/NTELfqS.jks  	 
+javax.net.ssl.trustStorePassword=fusQs1  	 
+javax.net.ssl.trustStoreType=JKS</textarea>
                 </div>
             </div>
 
@@ -239,6 +270,12 @@ javax.net.ssl.keyStorePassword=C3Ktest"></textarea>
 				</div>
 			</div>
 
+			<div class="form-group">
+                <label class="control-label col-xs-3" for="cost" id="costLabel"></label>
+                <div class="col-xs-9" id="cost">
+                    <!-- <textarea rows="6" name="output" class="form-control" id="output" style="display:none;"></textarea> -->
+                </div>
+            </div>
 
 			<div class="form-group">
                 <label class="control-label col-xs-3" for="output" id="outputLabel"></label>

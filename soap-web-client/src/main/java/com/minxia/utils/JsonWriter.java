@@ -13,28 +13,30 @@ import com.minxia.model.SoapForm;
 
 public class JsonWriter {
 	
-	public final String createJson_str(boolean isSuc,String msg)
+	public final String createJson_str(boolean isSuc,String msg, long cost)
 	{
 		if(isValidJSON(msg)){
 			System.out.println(msg);
 			String json = "{";
 			json += "\"isSuc\":" + (isSuc ? "true" : "false");
-			json += ",\"msg\": " + msg + "}";
+			json += ",\"msg\": " + msg;
+			json += ",\"cost\": " + cost + "}";
 			return json;
 		}else{
 			String output = XmlEscape.escapeXml(msg);
 			String json = "{";
 			json += "\"isSuc\":" + (isSuc ? "true" : "false");
-			json += ",\"msg\":\"" + output + "\"}";
+			json += ",\"msg\":\"" + output + "\"";
+			json += ",\"cost\": " + cost + "}";
 			return json;
 		}
 	}
 	
-	public void writeJsonOutput(Boolean isSuc, HttpServletResponse response, String msg) {
+	public void writeJsonOutput(Boolean isSuc, HttpServletResponse response, String msg, long cost) {
 		PrintWriter out = null;
 		try {
 			out = response.getWriter();
-			out.println(createJson_str(isSuc, msg));
+			out.println(createJson_str(isSuc, msg, cost));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
